@@ -1,11 +1,9 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Scripts
 {
     public class ZombieController : MonoBehaviour
     {
-
         public Transform Player;
         public float distanceToLookAtPlayer = 10f;
         public float distanceToEngage = 5f;
@@ -13,11 +11,11 @@ namespace Assets.Scripts
         public float health = 100f;
 
         private static Animator Animator;
+
         void Start()
         {
             Animator = this.GetComponent<Animator>();
         }
-
 
         void Update()
         {
@@ -26,23 +24,33 @@ namespace Assets.Scripts
 
         public void TakeDamage(float damageAmount)
         {
+            Animator.SetTrigger("takeDamage");
+
             health -= damageAmount;
 
             if (health <= 0)
             {
-
                 Die();
-
             }
         }
 
+        #region Enemy Die 
+
         private void Die()
         {
-            Animator.SetBool("IsDying", true);
+            Animator.SetBool("isDying", true);
 
-            Destroy(gameObject);
+            var zombieScript = GetComponent<ZombieController>();
+
+            zombieScript.enabled = false;
+
+            Destroy(gameObject, 2);
         }
 
+        #endregion
+
+
+        #region Enemy animations and movement
         private void LookAtPlayerAndMove()
         {
             var playerPositionDistance = Vector3.Distance(this.Player.position, this.transform.position);
@@ -77,10 +85,11 @@ namespace Assets.Scripts
                 Animator.SetBool("isRunning", false);
                 Animator.SetBool("isAttacking", false);
                 Animator.SetBool("isDying", false);
-                Animator.SetBool("isTakingDamage", false);
+                
             }
 
         }
 
+        #endregion
     }
 }
