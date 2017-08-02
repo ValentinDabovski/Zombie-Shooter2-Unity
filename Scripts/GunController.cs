@@ -68,7 +68,7 @@ namespace Assets.Scripts
 
             if (this.currentAmmo <= 0)
             {
-                this.audioSource.PlayOneShot(this.WeaponReloadAudio);
+                this.audioSource.PlayOneShot(this.WeaponReloadAudio,1f);
                 StartCoroutine(this.Reload());
                 return;
             }

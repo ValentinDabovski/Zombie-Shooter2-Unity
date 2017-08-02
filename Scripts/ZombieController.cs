@@ -1,30 +1,45 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+
+using Random = System.Random;
 
 namespace Assets.Scripts
 {
     public class ZombieController : MonoBehaviour
     {
         public Transform Player;
+
         public float distanceToLookAtPlayer = 10f;
         public float distanceToEngage = 5f;
         public float zombieWalkingSpeed = 1;
         public float health = 100f;
 
-        private static Animator Animator;
+        private Animator animator;
+
+        private AudioManager audioManager;
+
+
+        void OnEnable()
+        {
+
+            this.audioManager = FindObjectOfType<AudioManager>();
+        }
 
         void Start()
         {
-            Animator = this.GetComponent<Animator>();
+            this.animator = this.GetComponent<Animator>();
+
         }
 
         void Update()
         {
+
             LookAtPlayerAndMove();
         }
 
         public void TakeDamage(float damageAmount)
         {
-            Animator.SetTrigger("takeDamage");
+            this.TakeDamageSound();
 
             health -= damageAmount;
 
@@ -38,7 +53,9 @@ namespace Assets.Scripts
 
         private void Die()
         {
-            Animator.SetBool("isDying", true);
+            this.audioManager.Play("ZombieDie");
+
+            animator.SetBool("Die", true);
 
             var zombieScript = GetComponent<ZombieController>();
 
@@ -62,34 +79,55 @@ namespace Assets.Scripts
 
                 this.transform.rotation = Quaternion.Slerp(this.transform.rotation, Quaternion.LookRotation(direction), 0.2f);
 
-                Animator.SetBool("isIdle", false);
+                animator.SetBool("Iddle", false);
+                Debug.Log("enemy walking");
+
                 if (direction.magnitude > distanceToEngage)
                 {
+                    
                     this.transform.Translate(0, 0, zombieWalkingSpeed * Time.deltaTime);
-                    Animator.SetBool("isRunning", true);
-                    Animator.SetBool("isAttacking", false);
+                    animator.SetBool("Walk", true);
+                    animator.SetBool("Attack", false);
+
                 }
 
                 else
                 {
-                    Animator.SetBool("isAttacking", true);
-                    Animator.SetBool("isRunning", false);
+                    this.AttackSound();
+                    Debug.Log("enemy atacking");
+                    animator.SetBool("Attack", true);
+                    animator.SetBool("Walk", false);
                 }
-
 
             }
 
             else
             {
-                Animator.SetBool("isIdle", true);
-                Animator.SetBool("isRunning", false);
-                Animator.SetBool("isAttacking", false);
-                Animator.SetBool("isDying", false);
-                
+                animator.SetBool("Iddle", true);
+                animator.SetBool("Walk", false);
+                animator.SetBool("Attack", false);
+                animator.SetBool("Die", false);
+
             }
 
         }
 
         #endregion
+
+        private void TakeDamageSound()
+        {
+            Random random = new Random();
+            int soundToPlay = random.Next(0, 2);
+
+            audioManager.Play(soundToPlay > 0 ? "ZombieTakeDamage1" : "ZombieTakeDamage2");
+        }
+
+        private void AttackSound()
+        {
+            Random random = new Random();
+            int soundToPlay = random.Next(0, 2);
+
+            audioManager.Play(soundToPlay > 0 ? "ZombieTalk1" : "ZombieTalk2");
+        }
     }
 }
