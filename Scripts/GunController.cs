@@ -9,10 +9,11 @@ namespace Assets.Scripts
 
         public Camera FpsCamera;
         public ParticleSystem MuzzleFlash;
+        public GameObject HitEffect;
         public Animator Animator;
         public AudioClip WeaponShotAudio;
         public AudioClip WeaponReloadAudio;
-     
+
 
 
         public float WeaponDamage = 10f;
@@ -32,14 +33,14 @@ namespace Assets.Scripts
         private bool isFiring = false;
 
 
-    
 
-        
+
+
         void Start()
         {
             this.audioSource = GetComponent<AudioSource>();
             currentAmmo = this.WeaponMaxAmmo;
-          
+
         }
 
 
@@ -61,14 +62,14 @@ namespace Assets.Scripts
 
             if (isReloading)
             {
-               
+
                 this.Animator.SetBool("Iddle", false);
                 return;
             }
 
             if (this.currentAmmo <= 0)
             {
-                this.audioSource.PlayOneShot(this.WeaponReloadAudio,1f);
+                this.audioSource.PlayOneShot(this.WeaponReloadAudio, 1f);
                 StartCoroutine(this.Reload());
                 return;
             }
@@ -85,7 +86,7 @@ namespace Assets.Scripts
 
         private IEnumerator Reload()
         {
-           
+
             isReloading = true;
 
             Debug.Log("Reloading");
@@ -141,7 +142,10 @@ namespace Assets.Scripts
                     hit.rigidbody.AddForce(-hit.normal * WeaponImapctForce);
                 }
 
-                // TODO: hit effect
+                GameObject impactHit = Instantiate(this.HitEffect, hit.point, Quaternion.LookRotation(hit.normal));
+
+                Destroy(impactHit,1);
+
             }
 
             this.Animator.SetBool("Shooting", false);
